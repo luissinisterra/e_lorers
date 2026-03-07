@@ -5,13 +5,13 @@ import { Router } from '@angular/router';
 import { EventService, CreateEventBody } from '../../services/event.service';
 
 @Component({
-  selector: 'app-create-event',
+  selector: 'app-event-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './create-event.html',
-  styleUrls: ['./create-event.css']
+  templateUrl: './event-form.html',
+  styleUrls: ['./event-form.css']
 })
-export class CreateEventComponent implements OnInit {
+export class EventFormComponent implements OnInit {
 
   eventForm!: FormGroup;
   currentStep = 1;
@@ -76,7 +76,7 @@ export class CreateEventComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    this.router.navigate(['/events']);
   }
 
   // ── Validation ────────────────────────────────────────────────────────────

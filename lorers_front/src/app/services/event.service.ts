@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from './auth.service';
 
 const API_URL = 'http://localhost:3000';
 
@@ -10,6 +10,7 @@ export interface EventResponse {
   name: string;
   description: string | null;
   creator_id: number;
+  likes: number;
   max_participants: number | null;
   start_time: string;
   end_time: string;
