@@ -1,20 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-// ── Payload shape that matches EventService.createEvent() ──────────────────
-export interface CreateEventPayload {
-  name: string;
-  description: string | null;
-  creator_id: number;          // injected from auth, not from the form
-  max_participants: number | null;
-  start_time: Date;
-  end_time: Date;
-  address: string;
-  latitude: number | null;
-  longitude: number | null;
-}
+import { EventService, CreateEventBody } from '../../services/event.service';
 
 @Component({
   selector: 'app-create-event',
@@ -32,29 +20,23 @@ export class CreateEventComponent implements OnInit {
   submitted = false;
   gettingLocation = false;
   today = '';
-
-  // Computed flag — set in nextStep() when moving away from step 2
   dateRangeError = false;
-
-  // Holds the id of the just-created event returned by the API
   createdEventId: number | null = null;
+  submitError: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    // Inject your EventService here when ready:
-    // private eventService: EventService
+    private eventService: EventService
   ) {}
 
   ngOnInit(): void {
     this.today = new Date().toISOString().split('T')[0];
 
     this.eventForm = this.fb.group({
-      // Step 1
       name:             ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],
-      description:      [null],   // string | null — optional
+      description:      [null],
 
-      // Step 2
       startDate:        ['', Validators.required],
       startTime:        ['', Validators.required],
       endDate:          ['', Validators.required],
@@ -63,7 +45,6 @@ export class CreateEventComponent implements OnInit {
       latitude:         [null, [Validators.min(-90),  Validators.max(90)]],
       longitude:        [null, [Validators.min(-180), Validators.max(180)]],
 
-      // Step 3
       max_participants: [null, [Validators.min(1), Validators.max(100000)]],
     });
   }
@@ -106,9 +87,7 @@ export class CreateEventComponent implements OnInit {
   }
 
   isStep1Valid(): boolean {
-    return (
-      this.eventForm.get('name')!.valid
-    );
+    return this.eventForm.get('name')!.valid;
   }
 
   isStep2Valid(): boolean {
@@ -124,7 +103,7 @@ export class CreateEventComponent implements OnInit {
     const st = this.eventForm.get('startTime')?.value;
     const ed = this.eventForm.get('endDate')?.value;
     const et = this.eventForm.get('endTime')?.value;
-    if (!sd || !st || !ed || !et) return true; // skip if incomplete
+    if (!sd || !st || !ed || !et) return true;
     return new Date(`${sd}T${st}`) < new Date(`${ed}T${et}`);
   }
 
@@ -164,15 +143,14 @@ export class CreateEventComponent implements OnInit {
 
   // ── Payload builder ───────────────────────────────────────────────────────
 
-  buildPayload(): CreateEventPayload {
+  private buildPayload(): CreateEventBody {
     const v = this.eventForm.value;
     return {
       name:             v.name.trim(),
       description:      v.description?.trim() || null,
-      creator_id:       0, // TODO: replace with real user ID from AuthService
       max_participants: v.max_participants ? Number(v.max_participants) : null,
-      start_time:       new Date(`${v.startDate}T${v.startTime}`),
-      end_time:         new Date(`${v.endDate}T${v.endTime}`),
+      start_time:       new Date(`${v.startDate}T${v.startTime}`).toISOString(),
+      end_time:         new Date(`${v.endDate}T${v.endTime}`).toISOString(),
       address:          v.address.trim(),
       latitude:         v.latitude  !== null && v.latitude  !== '' ? Number(v.latitude)  : null,
       longitude:        v.longitude !== null && v.longitude !== '' ? Number(v.longitude) : null,
@@ -183,35 +161,28 @@ export class CreateEventComponent implements OnInit {
 
   onSubmit(): void {
     if (this.eventForm.invalid || this.isSubmitting) return;
-    if (!this.isDateRangeValid()) { this.dateRangeError = true; this.currentStep = 2; return; }
+    if (!this.isDateRangeValid()) {
+      this.dateRangeError = true;
+      this.currentStep = 2;
+      return;
+    }
 
     this.isSubmitting = true;
+    this.submitError = null;
+
     const payload = this.buildPayload();
 
-    console.log('Payload enviado al backend:', payload);
-
-    /* ── Replace the setTimeout below with your real API call ──────────────
-    this.eventService.createEvent(
-      payload.name, payload.description, payload.creator_id,
-      payload.max_participants, payload.start_time, payload.end_time,
-      payload.address, payload.latitude, payload.longitude
-    ).subscribe({
+    this.eventService.createEvent(payload).subscribe({
       next: (event) => {
         this.createdEventId = event.id;
         this.isSubmitting = false;
         this.submitted = true;
       },
       error: (err) => {
-        console.error(err);
+        this.submitError = err.error?.message || 'Ocurrió un error al crear el evento. Inténtalo de nuevo.';
         this.isSubmitting = false;
       }
     });
-    ─────────────────────────────────────────────────────────────────────── */
-
-    setTimeout(() => {
-      this.isSubmitting = false;
-      this.submitted = true;
-    }, 1500);
   }
 
   // ── Post-submit actions ───────────────────────────────────────────────────
@@ -228,6 +199,7 @@ export class CreateEventComponent implements OnInit {
     this.submitted = false;
     this.currentStep = 1;
     this.dateRangeError = false;
+    this.submitError = null;
     this.createdEventId = null;
     this.eventForm.reset();
   }
