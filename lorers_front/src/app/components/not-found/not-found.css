@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  --c-bg: #0d0d12;
+  --c-text: #f0effe;
+  --c-muted: #7b7a8e;
+  --c-accent: #f0c060;
+  --c-accent2: #e06090;
+  --c-border: rgba(255, 255, 255, 0.08);
+}
+
+.page-wrapper {
+  min-height: 100vh;
+  background: var(--c-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
+.bg-orb--1 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(240,192,96,0.1) 0%, transparent 70%); top: -100px; right: -100px; }
+.bg-orb--2 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(224,96,144,0.08) 0%, transparent 70%); bottom: 80px; left: -80px; }
+.bg-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 40px 40px; }
+
+.center {
+  text-align: center;
+  padding: 40px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.code {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(80px, 20vw, 140px);
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 0 0 10px;
+}
+
+p {
+  font-size: 15px;
+  color: var(--c-muted);
+  margin: 0 0 32px;
+}
+
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 50px;
+  background: var(--c-accent);
+  border: none;
+  color: #0d0d12;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-home:hover {
+  background: #f5d080;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(240, 192, 96, 0.3);
+}

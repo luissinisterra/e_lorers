@@ -13,8 +13,8 @@
         </svg>
       </button>
       <div class="header-title">
-        <span class="header-tag">NUEVO EVENTO</span>
-        <h1>Crea tu<br><em>momento</em></h1>
+        <span class="header-tag">{{ isEditMode ? 'EDITAR EVENTO' : 'NUEVO EVENTO' }}</span>
+        <h1>{{ isEditMode ? 'Edita tu' : 'Crea tu' }}<br><em>momento</em></h1>
       </div>
       <div class="header-step">
         <span class="step-current">{{ currentStep }}</span>
@@ -257,11 +257,11 @@
     <div class="success-overlay" [class.success-overlay--visible]="submitted">
       <div class="success-card">
         <div class="success-burst">🎉</div>
-        <h2>¡Evento creado!</h2>
-        <p>Tu evento está publicado y listo para recibir participantes.</p>
+        <h2>{{ isEditMode ? '¡Evento actualizado!' : '¡Evento creado!' }}</h2>
+        <p>{{ isEditMode ? 'Los cambios se guardaron correctamente.' : 'Tu evento está publicado y listo para recibir participantes.' }}</p>
         <div class="success-actions">
           <button class="btn-success-primary" (click)="viewEvent()">Ver evento</button>
-          <button class="btn-success-secondary" (click)="resetForm()">Crear otro</button>
+          <button class="btn-success-secondary" *ngIf="!isEditMode" (click)="resetForm()">Crear otro</button>
         </div>
       </div>
     </div>
