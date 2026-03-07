@@ -1,0 +1,109 @@
+<div class="page-wrapper">
+  <div class="bg-orb bg-orb--1"></div>
+  <div class="bg-orb bg-orb--2"></div>
+  <div class="bg-grid"></div>
+
+  <div class="page-container">
+
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-title">
+        <span class="header-tag">DESCUBRE</span>
+        <h1>Todos los<br><em>eventos</em></h1>
+      </div>
+      <button class="btn-create" type="button" (click)="goToCreate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nuevo evento
+      </button>
+    </header>
+
+    <!-- Toolbar: search + filters -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Buscar eventos..."
+          (input)="onSearch($any($event.target).value)"
+        />
+      </div>
+
+      <div class="filter-pills">
+        @for (f of filters; track f.key) {
+          <button
+            class="filter-pill"
+            [class.filter-pill--active]="activeFilter === f.key"
+            type="button"
+            (click)="setFilter(f.key)"
+          >{{ f.label }}</button>
+        }
+      </div>
+    </div>
+
+    <!-- Loading -->
+    @if (isLoading) {
+      <div class="state-center">
+        <div class="spinner-lg"></div>
+        <p class="state-text">Cargando eventos...</p>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!isLoading && loadError) {
+      <div class="alert-error">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ loadError }}
+        <button class="btn-retry" type="button" (click)="loadEvents()">Reintentar</button>
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (!isLoading && !loadError && filteredEvents.length === 0) {
+      <div class="state-center">
+        <div class="empty-icon">◈</div>
+        <p class="state-title">Sin eventos</p>
+        <p class="state-text">
+          @if (searchQuery || activeFilter !== 'all') {
+            No hay resultados para esta búsqueda o filtro.
+          } @else {
+            Aún no hay eventos creados. ¡Sé el primero!
+          }
+        </p>
+        @if (!searchQuery && activeFilter === 'all') {
+          <button class="btn-create btn-create--centered" type="button" (click)="goToCreate()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Crear evento
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Event grid -->
+    @if (!isLoading && !loadError && filteredEvents.length > 0) {
+      <div class="events-count">
+        <span class="count-num">{{ filteredEvents.length }}</span>
+        <span class="count-label">{{ filteredEvents.length === 1 ? 'evento' : 'eventos' }}</span>
+      </div>
+
+      <div class="events-grid">
+        @for (event of filteredEvents; track trackById($index, event)) {
+          <app-event-card
+            [event]="event"
+            (eventClick)="viewEvent($event)"
+          />
+        }
+      </div>
+    }
+
+  </div>
+</div>
