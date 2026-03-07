@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://e-lorers-aa66.onrender.com';
 const TOKEN_KEY = 'lorers_token';
 
 @Injectable({ providedIn: 'root' })
