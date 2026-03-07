@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule, AbstractControl, ValidationErrors
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 // ── Payload shape that matches AuthService.register() ─────────────────────
 export interface RegisterPayload {

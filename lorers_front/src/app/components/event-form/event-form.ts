@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { EventService, CreateEventBody } from '../../services/event.service';
 
 @Component({
-  selector: 'app-create-event',
+  selector: 'app-event-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './create-event.html',
-  styleUrls: ['./create-event.css']
+  templateUrl: './event-form.html',
+  styleUrls: ['./event-form.css']
 })
-export class CreateEventComponent implements OnInit {
+export class EventFormComponent implements OnInit {
 
   eventForm!: FormGroup;
   currentStep = 1;
@@ -21,12 +21,17 @@ export class CreateEventComponent implements OnInit {
   gettingLocation = false;
   today = '';
   dateRangeError = false;
-  createdEventId: number | null = null;
   submitError: string | null = null;
+  isLoadingEvent = false;
+
+  editId: number | null = null;
+  get isEditMode(): boolean { return this.editId !== null; }
+  createdEventId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private eventService: EventService
   ) {}
 
@@ -36,7 +41,6 @@ export class CreateEventComponent implements OnInit {
     this.eventForm = this.fb.group({
       name:             ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],
       description:      [null],
-
       startDate:        ['', Validators.required],
       startTime:        ['', Validators.required],
       endDate:          ['', Validators.required],
@@ -44,9 +48,50 @@ export class CreateEventComponent implements OnInit {
       address:          ['', Validators.required],
       latitude:         [null, [Validators.min(-90),  Validators.max(90)]],
       longitude:        [null, [Validators.min(-180), Validators.max(180)]],
-
       max_participants: [null, [Validators.min(1), Validators.max(100000)]],
     });
+
+    // Si hay :id en la ruta, entramos en modo edición
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.editId = Number(idParam);
+      this.loadEventForEdit(this.editId);
+    }
+  }
+
+  private loadEventForEdit(id: number): void {
+    this.isLoadingEvent = true;
+    this.eventService.getEventById(id).subscribe({
+      next: (event) => {
+        const start = new Date(event.start_time);
+        const end   = new Date(event.end_time);
+        this.eventForm.patchValue({
+          name:             event.name,
+          description:      event.description,
+          startDate:        this.toDateInput(start),
+          startTime:        this.toTimeInput(start),
+          endDate:          this.toDateInput(end),
+          endTime:          this.toTimeInput(end),
+          address:          event.address,
+          latitude:         event.latitude,
+          longitude:        event.longitude,
+          max_participants: event.max_participants,
+        });
+        this.isLoadingEvent = false;
+      },
+      error: () => {
+        this.submitError = 'No se pudo cargar el evento para editar.';
+        this.isLoadingEvent = false;
+      }
+    });
+  }
+
+  private toDateInput(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  private toTimeInput(date: Date): string {
+    return date.toTimeString().slice(0, 5);
   }
 
   // ── Progress ──────────────────────────────────────────────────────────────
@@ -76,7 +121,11 @@ export class CreateEventComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    if (this.isEditMode) {
+      this.router.navigate(['/events', this.editId]);
+    } else {
+      this.router.navigate(['/events']);
+    }
   }
 
   // ── Validation ────────────────────────────────────────────────────────────
@@ -169,27 +218,31 @@ export class CreateEventComponent implements OnInit {
 
     this.isSubmitting = true;
     this.submitError = null;
-
     const payload = this.buildPayload();
 
-    this.eventService.createEvent(payload).subscribe({
+    const request$ = this.isEditMode
+      ? this.eventService.updateEvent(this.editId!, payload)
+      : this.eventService.createEvent(payload);
+
+    request$.subscribe({
       next: (event) => {
         this.createdEventId = event.id_event;
         this.isSubmitting = false;
         this.submitted = true;
       },
       error: (err) => {
-        this.submitError = err.error?.message || 'Ocurrió un error al crear el evento. Inténtalo de nuevo.';
+        this.submitError = err.error?.message || 'Ocurrió un error. Inténtalo de nuevo.';
         this.isSubmitting = false;
       }
     });
   }
 
-  // ── Post-submit actions ───────────────────────────────────────────────────
+  // ── Post-submit ───────────────────────────────────────────────────────────
 
   viewEvent(): void {
-    if (this.createdEventId) {
-      this.router.navigate(['/events', this.createdEventId]);
+    const id = this.createdEventId ?? this.editId;
+    if (id) {
+      this.router.navigate(['/events', id]);
     } else {
       this.router.navigate(['/events']);
     }

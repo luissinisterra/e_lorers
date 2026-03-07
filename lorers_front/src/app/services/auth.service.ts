@@ -37,4 +37,15 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
   }
+
+  getCurrentUserId(): number | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.id ?? null;
+    } catch {
+      return null;
+    }
+  }
 }
