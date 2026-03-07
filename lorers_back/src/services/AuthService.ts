@@ -16,14 +16,12 @@ export class AuthService {
             throw new Error('User not found');
         }
 
-        const data = user?.dataValues;
-
-        if (!bcrypt.compareSync(password, data.password)) {
+        if (!bcrypt.compareSync(password, user.getDataValue("password"))) {
             throw new Error('Invalid credentials');
         }
 
         const token = jwt.sign(
-            { id: data.id, username: data.username },
+            { id: user.getDataValue('id'), username: user.getDataValue('username') },
             process.env.JWT_SECRET as string,
             { expiresIn: '1h' }
         );
@@ -43,7 +41,7 @@ export class AuthService {
         const newUser = await this.userRepository.create(name, username, hashedPassword);
 
         const token = jwt.sign(
-            { id: newUser.id, username: newUser.username },
+            { id: newUser.getDataValue('id'), username: newUser.getDataValue('username') },
             process.env.JWT_SECRET as string,
             { expiresIn: '1h' }
         );

@@ -69,7 +69,7 @@ export class EventRepository {
     async decrementLikes(id: number) {
         const event = await Event.findByPk(id);
         if (!event) return null;
-        if ((event.likes ?? 0) > 0) {
+        if ((event.getDataValue('likes') ?? 0) > 0) {
             await event.decrement('likes');
             return event.reload();
         }

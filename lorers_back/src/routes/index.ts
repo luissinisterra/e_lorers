@@ -36,7 +36,7 @@ router.delete('/events/:id', authMiddleware, deleteEvent);
 router.get('/events/:id_event/likes', authMiddleware, getLikesByEvent);
 router.get('/events/:id_event/likes/me', authMiddleware, hasLiked);
 router.post('/events/:id_event/like', authMiddleware, likeEvent);
-router.delete('/events/:id_event/like', authMiddleware, unlikeEvent);
+router.delete('/events/:id_event/unlike', authMiddleware, unlikeEvent);
 
 router.get('/events/:id_event/participants', authMiddleware, getParticipantsByEvent);
 router.post('/events/:id_event/join', authMiddleware, joinEvent);
