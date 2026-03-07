@@ -4,12 +4,8 @@ import { ParticipantService } from "../services/ParticipantService.js";
 const participantService = new ParticipantService();
 
 export const getParticipantsByEvent = async (req: Request, res: Response) => {
-    const id_event = Number(req.params.id_event);
-    if (isNaN(id_event) || id_event <= 0) {
-        res.status(400).json({ message: "Invalid id_event" });
-        return;
-    }
     try {
+        const id_event = Number(req.params.id_event);
         const participants = await participantService.getParticipantsByEvent(id_event);
         res.json(participants);
     } catch (error: any) {
@@ -19,12 +15,8 @@ export const getParticipantsByEvent = async (req: Request, res: Response) => {
 };
 
 export const getEventsByUser = async (req: Request, res: Response) => {
-    const id_user = Number(req.params.id_user);
-    if (isNaN(id_user) || id_user <= 0) {
-        res.status(400).json({ message: "Invalid id_user" });
-        return;
-    }
     try {
+        const id_user = Number(req.params.id_user);
         const events = await participantService.getEventsByUser(id_user);
         res.json(events);
     } catch (error: any) {
@@ -33,12 +25,8 @@ export const getEventsByUser = async (req: Request, res: Response) => {
 };
 
 export const joinEvent = async (req: Request, res: Response) => {
-    const id_event = Number(req.params.id_event);
-    if (isNaN(id_event) || id_event <= 0) {
-        res.status(400).json({ message: "Invalid id_event" });
-        return;
-    }
     try {
+        const id_event = Number(req.params.id_event);
         const id_user = (req as any).user.id;
         const participant = await participantService.joinEvent(id_event, id_user);
         res.status(201).json(participant);
@@ -52,12 +40,8 @@ export const joinEvent = async (req: Request, res: Response) => {
 };
 
 export const leaveEvent = async (req: Request, res: Response) => {
-    const id_event = Number(req.params.id_event);
-    if (isNaN(id_event) || id_event <= 0) {
-        res.status(400).json({ message: "Invalid id_event" });
-        return;
-    }
     try {
+        const id_event = Number(req.params.id_event);
         const id_user = (req as any).user.id;
         await participantService.leaveEvent(id_event, id_user);
         res.status(204).send();

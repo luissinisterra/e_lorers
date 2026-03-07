@@ -85,15 +85,4 @@ export class EventService {
         return await this.eventRepository.delete(id);
     }
 
-    async likeEvent(id: number) {
-        const event = await this.eventRepository.findById(id);
-        if (!event) throw new Error("Event not found");
-        return await this.eventRepository.incrementLikes(id);
-    }
-
-    async unlikeEvent(id: number) {
-        const event = await this.eventRepository.findById(id);
-        if (!event) throw new Error("Event not found");
-        return await this.eventRepository.decrementLikes(id);
-    }
 }

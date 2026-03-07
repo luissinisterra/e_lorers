@@ -96,22 +96,3 @@ export const deleteEvent = async (req: Request, res: Response) => {
     }
 };
 
-export const likeEvent = async (req: Request, res: Response) => {
-    try {
-        const event = await eventService.likeEvent(Number(req.params.id));
-        res.json(event);
-    } catch (error: any) {
-        const status = error.message === "Event not found" ? 404 : 500;
-        res.status(status).json({ message: error.message });
-    }
-};
-
-export const unlikeEvent = async (req: Request, res: Response) => {
-    try {
-        const event = await eventService.unlikeEvent(Number(req.params.id));
-        res.json(event);
-    } catch (error: any) {
-        const status = error.message === "Event not found" ? 404 : 500;
-        res.status(status).json({ message: error.message });
-    }
-};
