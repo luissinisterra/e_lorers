@@ -1,0 +1,164 @@
+<div class="page-wrapper">
+  <div class="bg-orb bg-orb--1"></div>
+  <div class="bg-orb bg-orb--2"></div>
+  <div class="bg-grid"></div>
+
+  <div class="page-container">
+
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-title">
+        <span class="header-tag">DESCUBRE</span>
+        <h1>Todos los<br><em>eventos</em></h1>
+      </div>
+      <button class="btn-create" type="button" (click)="goToCreate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nuevo evento
+      </button>
+    </header>
+
+    <!-- Toolbar: search + filters -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Buscar eventos..."
+          (input)="onSearch($any($event.target).value)"
+        />
+      </div>
+
+      <div class="filter-pills">
+        @for (f of filters; track f.key) {
+          <button
+            class="filter-pill"
+            [class.filter-pill--active]="activeFilter === f.key"
+            type="button"
+            (click)="setFilter(f.key)"
+          >{{ f.label }}</button>
+        }
+      </div>
+    </div>
+
+    <!-- Loading -->
+    @if (isLoading) {
+      <div class="state-center">
+        <div class="spinner-lg"></div>
+        <p class="state-text">Cargando eventos...</p>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!isLoading && loadError) {
+      <div class="alert-error">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ loadError }}
+        <button class="btn-retry" type="button" (click)="loadEvents()">Reintentar</button>
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (!isLoading && !loadError && filteredEvents.length === 0) {
+      <div class="state-center">
+        <div class="empty-icon">◈</div>
+        <p class="state-title">Sin eventos</p>
+        <p class="state-text">
+          @if (searchQuery || activeFilter !== 'all') {
+            No hay resultados para esta búsqueda o filtro.
+          } @else {
+            Aún no hay eventos creados. ¡Sé el primero!
+          }
+        </p>
+        @if (!searchQuery && activeFilter === 'all') {
+          <button class="btn-create btn-create--centered" type="button" (click)="goToCreate()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Crear evento
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Event grid -->
+    @if (!isLoading && !loadError && filteredEvents.length > 0) {
+      <div class="events-count">
+        <span class="count-num">{{ filteredEvents.length }}</span>
+        <span class="count-label">{{ filteredEvents.length === 1 ? 'evento' : 'eventos' }}</span>
+      </div>
+
+      <div class="events-grid">
+        @for (event of filteredEvents; track trackById($index, event)) {
+          <article class="event-card" (click)="viewEvent(event.id_event)">
+
+            <!-- Card header band -->
+            <div class="card-band">
+              <span class="event-badge" [ngClass]="getStatusClass(event)">
+                {{ getStatusLabel(event) }}
+              </span>
+              @if (event.max_participants) {
+                <span class="cap-badge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                  </svg>
+                  {{ event.max_participants }}
+                </span>
+              }
+            </div>
+
+            <!-- Card body -->
+            <div class="card-body">
+              <h3 class="card-title">{{ event.name }}</h3>
+
+              @if (event.description) {
+                <p class="card-desc">{{ event.description | slice:0:100 }}{{ event.description.length > 100 ? '...' : '' }}</p>
+              }
+
+              <div class="card-meta">
+                <div class="meta-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span>{{ formatDateRange(event.start_time, event.end_time) }}</span>
+                </div>
+                <div class="meta-item">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <span>{{ event.address }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card footer -->
+            <div class="card-footer">
+              <span class="card-id">#{{ event.id_event }}</span>
+              <span class="card-link">
+                Ver detalle
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </span>
+            </div>
+
+          </article>
+        }
+      </div>
+    }
+
+  </div>
+</div>
