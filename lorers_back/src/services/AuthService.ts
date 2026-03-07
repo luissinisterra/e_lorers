@@ -9,7 +9,7 @@ export class AuthService {
         this.userRepository = new UserRepository();
     }
 
-    async login(username: string, password: string) { // In real apps, verify hash!
+    async login(username: string, password: string) {
         const user = await this.userRepository.findByUsername(username);
 
         if (!user) {

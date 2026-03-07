@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import sequelize from './config/database.js';
-import './entities/User.js'; // registra el modelo
+import './entities/User.js';
+import './entities/Event.js';
 import router from './routes/index.js';
 
 const app = express();
