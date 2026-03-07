@@ -10,6 +10,12 @@ import {
     likeEvent,
     unlikeEvent,
 } from '../controllers/EventController.js';
+import {
+    getParticipantsByEvent,
+    getEventsByUser,
+    joinEvent,
+    leaveEvent,
+} from '../controllers/ParticipantController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = Router();
@@ -25,5 +31,10 @@ router.put('/events/:id', authMiddleware, updateEvent);
 router.delete('/events/:id', authMiddleware, deleteEvent);
 router.post('/events/:id/like', authMiddleware, likeEvent);
 router.post('/events/:id/unlike', authMiddleware, unlikeEvent);
+
+router.get('/events/:id_event/participants', authMiddleware, getParticipantsByEvent);
+router.post('/events/:id_event/join', authMiddleware, joinEvent);
+router.delete('/events/:id_event/leave', authMiddleware, leaveEvent);
+router.get('/participants/user/:id_user', authMiddleware, getEventsByUser);
 
 export default router;

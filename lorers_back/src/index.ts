@@ -3,6 +3,7 @@ import cors from 'cors';
 import sequelize from './config/database.js';
 import './entities/User.js';
 import './entities/Event.js';
+import './entities/Participant.js';
 import router from './routes/index.js';
 
 const app = express();

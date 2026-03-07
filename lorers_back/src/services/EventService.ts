@@ -1,10 +1,13 @@
 import { EventRepository } from "../repositories/EventRepository.js";
+import { ParticipantRepository } from "../repositories/ParticipantRepository.js";
 
 export class EventService {
     private eventRepository: EventRepository;
+    private participantRepository: ParticipantRepository;
 
     constructor() {
         this.eventRepository = new EventRepository();
+        this.participantRepository = new ParticipantRepository();
     }
 
     async getAllEvents() {
@@ -12,9 +15,12 @@ export class EventService {
     }
 
     async getEventById(id: number) {
-        const event = await this.eventRepository.findById(id);
+        const [event, participant_count] = await Promise.all([
+            this.eventRepository.findById(id),
+            this.participantRepository.countByEvent(id),
+        ]);
         if (!event) throw new Error("Event not found");
-        return event;
+        return { ...event.toJSON(), participant_count };
     }
 
     async getEventsByCreator(creator_id: number) {
