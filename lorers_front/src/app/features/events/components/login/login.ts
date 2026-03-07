@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 // ── Payload shape that matches AuthService.login() ────────────────────────
 export interface LoginPayload {
@@ -26,8 +27,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    // Inject your AuthService here when ready:
-    // private authService: AuthService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -79,13 +79,10 @@ export class LoginComponent implements OnInit {
 
     console.log('Payload enviado al backend:', payload);
 
-    /* ── Replace the setTimeout below with your real API call ──────────────
     this.authService.login(payload.username, payload.password).subscribe({
-      next: (token: string) => {
-        // Store token (e.g. localStorage, a TokenService, etc.)
-        // localStorage.setItem('token', token);
+      next: (res: { token: string }) => {
         this.isLoading = false;
-        this.router.navigate(['/']);
+        this.router.navigate(['/events']);
       },
       error: (err) => {
         this.isLoading = false;
@@ -95,11 +92,5 @@ export class LoginComponent implements OnInit {
           'Error al iniciar sesión. Inténtalo de nuevo.';
       }
     });
-    ─────────────────────────────────────────────────────────────────────── */
-
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/']);
-    }, 1500);
   }
 }
