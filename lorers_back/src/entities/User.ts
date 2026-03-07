@@ -1,14 +1,7 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../config/database.js";
 
-const sequelize = new Sequelize({
-  dialect: "postgres", 
-  host: "localhost",
-  username: "your_username",
-  password: "your_password",
-  database: "your_database",
-});
-
-class User extends Model {
+export class User extends Model {
   public id!: number;
   public name!: string;
   public username!: string;
