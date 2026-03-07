@@ -6,7 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 const API_URL = 'http://localhost:3000';
 
 export interface EventResponse {
-  id: number;
+  id_event: number;
   name: string;
   description: string | null;
   creator_id: number;

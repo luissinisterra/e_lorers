@@ -174,7 +174,7 @@ export class CreateEventComponent implements OnInit {
 
     this.eventService.createEvent(payload).subscribe({
       next: (event) => {
-        this.createdEventId = event.id;
+        this.createdEventId = event.id_event;
         this.isSubmitting = false;
         this.submitted = true;
       },
