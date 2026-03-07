@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { UserRepository } from "../repositories/UserRepository.js";
+import bcrypt from 'bcryptjs';
 
 export class AuthService {
     private userRepository: UserRepository;
@@ -10,18 +11,19 @@ export class AuthService {
 
     async login(username: string, password: string) { // In real apps, verify hash!
         const user = await this.userRepository.findByUsername(username);
+
         if (!user) {
             throw new Error('User not found');
         }
 
-        // Simple comparison for educational purposes (Challenge: Implement hash check)
-        // if (!bcrypt.compareSync(password, user.password)) {
-        if (password !== user.password) {
+        const data = user?.dataValues;
+
+        if (!bcrypt.compareSync(password, data.password)) {
             throw new Error('Invalid credentials');
         }
 
         const token = jwt.sign(
-            { id: user.id, username: user.username },
+            { id: data.id, username: data.username },
             process.env.JWT_SECRET as string,
             { expiresIn: '1h' }
         );
@@ -36,7 +38,9 @@ export class AuthService {
             throw new Error('User already exists');
         }
 
-        const newUser = await this.userRepository.create(name, username, password);
+        const hashedPassword = bcrypt.hashSync(password, 10);
+
+        const newUser = await this.userRepository.create(name, username, hashedPassword);
 
         const token = jwt.sign(
             { id: newUser.id, username: newUser.username },

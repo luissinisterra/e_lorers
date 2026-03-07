@@ -1,12 +1,5 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
-
-const sequelize = new Sequelize({
-  dialect: "postgres", 
-  host: "localhost",
-  username: "your_username",
-  password: "your_password",
-  database: "your_database",
-});
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../config/database.js";
 
 export class User extends Model {
   public id!: number;
