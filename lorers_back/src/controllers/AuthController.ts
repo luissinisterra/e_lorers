@@ -12,3 +12,14 @@ export const login = async (req: Request, res: Response) => {
         res.status(401).json({ message: error.message });
     }
 };
+
+export const register = async (req: Request, res: Response) => {
+    try {
+        const { name, username, password } = req.body;
+        const token = await authService.register(name, username, password);
+        res.json({ token });
+    } catch (error: any) {
+        res.status(401).json({ message: error.message });
+    }
+};
+

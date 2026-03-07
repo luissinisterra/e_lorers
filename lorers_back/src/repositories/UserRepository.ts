@@ -5,7 +5,7 @@ export class UserRepository {
         return await User.findOne({ where: { username } });
     }
 
-    async create(user: any) {
-        return await User.create(user);
+    async create(name: string, username: string, password: string) {
+        return await User.create({ name, username, password });
     }
 }

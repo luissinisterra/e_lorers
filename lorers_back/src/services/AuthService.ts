@@ -28,4 +28,22 @@ export class AuthService {
 
         return token;
     }
+
+    async register(name: string, username: string, password: string) {
+        const user = await this.userRepository.findByUsername(username);
+
+        if (user) {
+            throw new Error('User already exists');
+        }
+
+        const newUser = await this.userRepository.create(name, username, password);
+
+        const token = jwt.sign(
+            { id: newUser.id, username: newUser.username },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '1h' }
+        );
+
+        return token;
+    }
 }
