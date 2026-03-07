@@ -21,10 +21,12 @@ export class ParticipantService {
     }
 
     async joinEvent(id_event: number, id_user: number) {
-        const event = await this.eventRepository.findById(id_event);
-        if (!event) throw new Error("Event not found");
+        const [event, already] = await Promise.all([
+            this.eventRepository.findById(id_event),
+            this.participantRepository.findOne(id_event, id_user),
+        ]);
 
-        const already = await this.participantRepository.findOne(id_event, id_user);
+        if (!event) throw new Error("Event not found");
         if (already) throw new Error("Already joined");
 
         const max = event.getDataValue('max_participants') as number | null;
@@ -37,10 +39,12 @@ export class ParticipantService {
     }
 
     async leaveEvent(id_event: number, id_user: number) {
-        const event = await this.eventRepository.findById(id_event);
-        if (!event) throw new Error("Event not found");
+        const [event, participant] = await Promise.all([
+            this.eventRepository.findById(id_event),
+            this.participantRepository.findOne(id_event, id_user),
+        ]);
 
-        const participant = await this.participantRepository.findOne(id_event, id_user);
+        if (!event) throw new Error("Event not found");
         if (!participant) throw new Error("Not a participant");
 
         return await this.participantRepository.delete(id_event, id_user);
