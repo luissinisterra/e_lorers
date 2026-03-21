@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://e-lorers-aa66.onrender.com';
 
 export interface EventResponse {
   id_event: number;
